@@ -1,0 +1,84 @@
+[settings]
+experimental = true
+
+[tools]
+uv = "0.9.7"
+
+# Auto-sync deps on cd into directory. Requires experimental = true above.
+[hooks]
+enter = "uv sync --all-extras --frozen"
+
+# -- Dependencies -------------------------------------------------------------
+
+[tasks."deps:install"]
+description = "Install application dependencies"
+run = "uv sync --all-extras"
+
+# -- Code Quality -------------------------------------------------------------
+
+[tasks.lint]
+description = "Run linter"
+depends = ["deps:install"]
+usage = 'flag "--fix" help="Auto-fix issues"'
+run = "uv run ruff check ${usage_fix:+--fix} ."
+
+[tasks.format]
+description = "Run formatter (check only unless --fix)"
+depends = ["deps:install"]
+usage = 'flag "--fix" help="Auto-fix issues"'
+run = "uv run ruff format ${usage_fix:---check} ."
+
+[tasks.type-check]
+description = "Run type checker"
+depends = ["deps:install"]
+run = "uv run basedpyright"
+
+[tasks.check]
+description = "Run all code checks (format, lint, types)"
+depends = ["deps:install"]
+run = [
+  "uv run ruff format --check .",
+  "uv run ruff check .",
+  "uv run basedpyright",
+]
+
+[tasks.fix]
+description = "Auto-fix code issues then type-check"
+depends = ["deps:install"]
+run = [
+  "uv run ruff format .",
+  "uv run ruff check --fix .",
+  "uv run basedpyright",
+]
+
+# -- Testing ------------------------------------------------------------------
+
+[tasks.test]
+description = "Run unit tests"
+depends = ["deps:install"]
+usage = 'arg "[args]" var=#true help="Extra pytest arguments, e.g. bowling_game"'
+run = "uv run pytest ${usage_args}"
+
+[tasks."test:watch"]
+description = "Re-run unit tests when files change"
+depends = ["deps:install"]
+run = "uv run ptw ."
+
+[tasks."test:coverage"]
+description = "Run unit tests with HTML coverage report"
+depends = ["deps:install"]
+run = "uv run pytest --cov=. --cov-report=term-missing --cov-report=html:./reports/coverage"
+
+# -- All ----------------------------------------------------------------------
+
+[tasks.precommit]
+description = "Auto-fix code issues, then run all checks and tests"
+depends = ["deps:install"]
+run = [
+  "uv run ruff format .",
+  "uv run ruff check --fix .",
+  "uv run ruff format --check .",
+  "uv run ruff check .",
+  "uv run basedpyright",
+  "uv run pytest",
+]

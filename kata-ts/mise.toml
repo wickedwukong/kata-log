@@ -1,0 +1,84 @@
+[settings]
+experimental = true
+
+[tools]
+bun = "1.4.4"
+
+# Auto-install deps on cd into directory. Requires experimental = true above.
+[hooks]
+enter = "bun install --frozen-lockfile"
+
+# -- Dependencies -------------------------------------------------------------
+
+[tasks."deps:install"]
+description = "Install application dependencies"
+run = "bun install"
+
+# -- Code Quality -------------------------------------------------------------
+
+[tasks.lint]
+description = "Run linter"
+depends = ["deps:install"]
+usage = 'flag "--fix" help="Auto-fix issues"'
+run = "bun run biome lint ${usage_fix:+--write} ."
+
+[tasks.format]
+description = "Run formatter (check only unless --fix)"
+depends = ["deps:install"]
+usage = 'flag "--fix" help="Auto-fix issues"'
+run = "bun run biome format ${usage_fix:+--write} ."
+
+[tasks.type-check]
+description = "Run type checker"
+depends = ["deps:install"]
+run = "bun run tsc --noEmit"
+
+[tasks.check]
+description = "Run all code checks (format, lint, types)"
+depends = ["deps:install"]
+run = [
+  "bun run biome format .",
+  "bun run biome lint .",
+  "bun run tsc --noEmit",
+]
+
+[tasks.fix]
+description = "Auto-fix code issues then type-check"
+depends = ["deps:install"]
+run = [
+  "bun run biome format --write .",
+  "bun run biome lint --write .",
+  "bun run tsc --noEmit",
+]
+
+# -- Testing ------------------------------------------------------------------
+
+[tasks.test]
+description = "Run unit tests with Vitest"
+depends = ["deps:install"]
+usage = 'arg "[args]" var=#true help="Extra vitest arguments, e.g. bowling-game"'
+run = "bun --bun vitest run ${usage_args}"
+
+[tasks."test:watch"]
+description = "Re-run unit tests when files change"
+depends = ["deps:install"]
+run = "bun --bun vitest"
+
+[tasks."test:coverage"]
+description = "Run unit tests with HTML coverage report"
+depends = ["deps:install"]
+run = "bun --bun vitest run --coverage"
+
+# -- All ----------------------------------------------------------------------
+
+[tasks.precommit]
+description = "Auto-fix code issues, then run all checks and tests"
+depends = ["deps:install"]
+run = [
+  "bun run biome format --write .",
+  "bun run biome lint --write .",
+  "bun run biome format .",
+  "bun run biome lint .",
+  "bun run tsc --noEmit",
+  "bun --bun vitest run",
+]

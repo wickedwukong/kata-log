@@ -1,0 +1,14 @@
+### macOS
+.DS_Store
+
+# Environments
+.env
+.env.local
+
+### mise
+mise.local.toml
+
+### JetBrains
+.idea/
+*.iws
+out/

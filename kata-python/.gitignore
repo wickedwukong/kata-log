@@ -1,0 +1,21 @@
+### Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Test and coverage reports
+reports/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+.pytest_cache/
+.ruff_cache/
+
+# Environments
+.venv
+
+### mise
+mise.local.toml

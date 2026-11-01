@@ -1,0 +1,11 @@
+### Node / Bun
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Test and coverage reports
+reports/
+coverage/
+
+### mise
+mise.local.toml

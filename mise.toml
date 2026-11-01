@@ -1,0 +1,30 @@
+# Root tasks run the same task in each sub-project.
+# Each sub-project has its own mise.toml with its tools and tasks.
+
+[tasks."precommit:typescript"]
+description = "Run precommit for the TypeScript sub-project"
+dir = "{{config_root}}/kata-ts"
+run = "mise run precommit"
+
+[tasks."precommit:python"]
+description = "Run precommit for the Python sub-project"
+dir = "{{config_root}}/kata-python"
+run = "mise run precommit"
+
+[tasks.precommit]
+description = "Auto-fix, check and test both sub-projects"
+depends = ["precommit:typescript", "precommit:python"]
+
+[tasks."test:typescript"]
+description = "Run TypeScript tests"
+dir = "{{config_root}}/kata-ts"
+run = "mise run test"
+
+[tasks."test:python"]
+description = "Run Python tests"
+dir = "{{config_root}}/kata-python"
+run = "mise run test"
+
+[tasks.test]
+description = "Run tests in both sub-projects"
+depends = ["test:typescript", "test:python"]
