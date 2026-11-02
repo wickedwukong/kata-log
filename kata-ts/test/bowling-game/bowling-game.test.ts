@@ -38,4 +38,11 @@ describe("BowlingGame", () => {
     expect(bowlingGame.roll(5).score()).toBe(10);
     expect(bowlingGame.roll(5).score()).toBe(20);
   });
+
+  test("strike has the next roll or 2 rolls as a bonus added", () => {
+    const bowlingGame = new BowlingGame();
+    expect(bowlingGame.roll(10).score()).toBe(10);
+    expect(bowlingGame.roll(5).score()).toBe(20);
+    expect(bowlingGame.roll(5).score()).toBe(30);
+  });
 });

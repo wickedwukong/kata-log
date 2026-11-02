@@ -24,7 +24,7 @@ class Frame {
   }
 
   add(pins: number): Frame {
-    if (this.firstRoll !== 10 && this.secondRoll) {
+    if (this.firstRoll === 10 || (this.firstRoll !== 10 && this.secondRoll)) {
       this.next = new Frame(pins);
     } else {
       this.secondRoll = pins;
