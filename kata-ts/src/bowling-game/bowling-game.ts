@@ -12,7 +12,7 @@ class Frame {
   constructor(firstRoll: number) {
     this.firstRoll = firstRoll;
   }
-  // Only the first 10 frames score. Frames 11 and 12 just hold bonus rolls.
+
   totalScore(framesLeft = LAST_FRAME_NUMBER): number {
     if (framesLeft === 0) {
       return 0;
@@ -54,6 +54,32 @@ class Frame {
     );
   }
 
+  isGameOver(): boolean {
+    const frameCount = this.totalFrames();
+    if (frameCount < LAST_FRAME_NUMBER) {
+      return false;
+    }
+
+    const tenthFrame = this.frameAt(LAST_FRAME_NUMBER);
+    const lastFrame = this.lastFrame();
+
+    if (frameCount === LAST_FRAME_NUMBER) {
+      if (!tenthFrame.isComplete()) {
+        return false;
+      }
+      return !tenthFrame.isStrike() && !tenthFrame.isSpare();
+    }
+
+    if (frameCount === LAST_FRAME_NUMBER + 1) {
+      if (tenthFrame.isSpare()) {
+        return true;
+      }
+      return lastFrame.isComplete() && !lastFrame.isStrike();
+    }
+
+    return true;
+  }
+
   private ownRolls() {
     return this.secondRoll === undefined
       ? [this.firstRoll]
@@ -79,11 +105,11 @@ class Frame {
     return [...rolls, ...missingRolls];
   }
 
-  isComplete() {
+  private isComplete() {
     return this.isStrike() || this.secondRoll !== undefined;
   }
 
-  lastFrame() {
+  private lastFrame() {
     let current: Frame = this;
     let next = this.next;
     while (next !== undefined) {
@@ -93,7 +119,7 @@ class Frame {
     return current;
   }
 
-  frameAt(count: number): Frame {
+  private frameAt(count: number): Frame {
     let current: Frame = this;
     for (let i = 1; i < count && current.next !== undefined; i++) {
       current = current.next;
@@ -106,7 +132,7 @@ export class BowlingGame {
   private firstFrame?: Frame;
 
   roll(pins: number): BowlingGame {
-    if (this.isGameOver()) {
+    if (this.firstFrame?.isGameOver()) {
       throw new Error(
         `The game is over: all ${LAST_FRAME_NUMBER} frames have been played`,
       );
@@ -123,35 +149,5 @@ export class BowlingGame {
 
   score(): number {
     return this.firstFrame?.totalScore() ?? 0;
-  }
-
-  private isGameOver(): boolean {
-    if (!this.firstFrame) {
-      return false;
-    }
-
-    const frameCount = this.firstFrame.totalFrames();
-    if (frameCount < LAST_FRAME_NUMBER) {
-      return false;
-    }
-
-    const tenthFrame = this.firstFrame.frameAt(LAST_FRAME_NUMBER);
-    const lastFrame = this.firstFrame.lastFrame();
-
-    if (frameCount === LAST_FRAME_NUMBER) {
-      if (!tenthFrame.isComplete()) {
-        return false;
-      }
-      return !tenthFrame.isStrike() && !tenthFrame.isSpare();
-    }
-
-    if (frameCount === LAST_FRAME_NUMBER + 1) {
-      if (tenthFrame.isSpare()) {
-        return true;
-      }
-      return lastFrame.isComplete() && !lastFrame.isStrike();
-    }
-
-    return true;
   }
 }
