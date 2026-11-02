@@ -1,3 +1,9 @@
+const LAST_FRAME_NUMBER = 10;
+
+function sum(points: number[]): number {
+  return points.reduce((acc, cur) => acc + cur, 0);
+}
+
 class Frame {
   private readonly firstRoll: number;
   private secondRoll?: number;
@@ -6,33 +12,21 @@ class Frame {
   constructor(firstRoll: number) {
     this.firstRoll = firstRoll;
   }
+  // Only the first 10 frames score. Frames 11 and 12 just hold bonus rolls.
+  totalScore(framesLeft = LAST_FRAME_NUMBER): number {
+    if (framesLeft === 0) {
+      return 0;
+    }
 
-  private points(): number {
-    const bonus = this.next?.rollsAfter(this.bonusCount()) ?? [];
-    return this.sum([...this.ownRolls(), ...bonus]);
-  }
-
-  private isStrike(): boolean {
-    return this.firstRoll === 10;
-  }
-
-  private isSpare(): boolean {
-    const secondRollPoints = this.secondRoll ?? 0;
-    return this.firstRoll + secondRollPoints === 10;
-  }
-
-  private sum(points: number[]): number {
-    return points.reduce((acc, cur) => acc + cur, 0);
-  }
-
-  totalScore(): number {
-    return this.points() + (this.next ? this.next.totalScore() : 0);
+    return (
+      this.points() + (this.next ? this.next.totalScore(framesLeft - 1) : 0)
+    );
   }
 
   add(pins: number): Frame {
     if (this.next) {
       this.next.add(pins);
-    } else if (this.firstRoll === 10 || this.secondRoll !== undefined) {
+    } else if (this.isComplete()) {
       this.next = new Frame(pins);
     } else {
       this.secondRoll = pins;
@@ -41,21 +35,23 @@ class Frame {
     return this;
   }
 
-  private next2RollsAfterCurrentFrame() {
-    if (this.next) {
-      return this.next.twoRolls();
-    }
-    return 0;
+  totalFrames(): number {
+    return 1 + (this.next?.totalFrames() ?? 0);
   }
 
-  private twoRolls() {
-    if (this.secondRoll !== undefined) {
-      return this.firstRoll + this.secondRoll;
-    } else if (this.next) {
-      return this.firstRoll + this.next.firstRoll;
-    }
+  private points(): number {
+    const bonus = this.next?.rollsFromHere(this.bonusCount()) ?? [];
+    return sum([...this.ownRolls(), ...bonus]);
+  }
 
-    return this.firstRoll;
+  isStrike(): boolean {
+    return this.firstRoll === 10;
+  }
+
+  isSpare(): boolean {
+    return (
+      this.secondRoll !== undefined && this.firstRoll + this.secondRoll === 10
+    );
   }
 
   private ownRolls() {
@@ -74,12 +70,35 @@ class Frame {
     return 0;
   }
 
-  private rollsAfter(count: number) {
-    const rolls: number[] = [
-      ...this.ownRolls(),
-      ...(this.next?.rollsAfter(count) ?? []),
-    ];
-    return rolls.slice(0, count);
+  private rollsFromHere(count: number): number[] {
+    const rolls = this.ownRolls().slice(0, count);
+    const missing = count - rolls.length;
+
+    const missingRolls = this.next?.rollsFromHere(missing) ?? [];
+
+    return [...rolls, ...missingRolls];
+  }
+
+  isComplete() {
+    return this.isStrike() || this.secondRoll !== undefined;
+  }
+
+  lastFrame() {
+    let current: Frame = this;
+    let next = this.next;
+    while (next !== undefined) {
+      current = next;
+      next = current.next;
+    }
+    return current;
+  }
+
+  frameAt(count: number): Frame {
+    let current: Frame = this;
+    for (let i = 1; i < count && current.next !== undefined; i++) {
+      current = current.next;
+    }
+    return current;
   }
 }
 
@@ -87,6 +106,12 @@ export class BowlingGame {
   private firstFrame?: Frame;
 
   roll(pins: number): BowlingGame {
+    if (this.isGameOver()) {
+      throw new Error(
+        `The game is over: all ${LAST_FRAME_NUMBER} frames have been played`,
+      );
+    }
+
     if (this.firstFrame) {
       this.firstFrame.add(pins);
     } else {
@@ -98,5 +123,35 @@ export class BowlingGame {
 
   score(): number {
     return this.firstFrame?.totalScore() ?? 0;
+  }
+
+  private isGameOver(): boolean {
+    if (!this.firstFrame) {
+      return false;
+    }
+
+    const frameCount = this.firstFrame.totalFrames();
+    if (frameCount < LAST_FRAME_NUMBER) {
+      return false;
+    }
+
+    const tenthFrame = this.firstFrame.frameAt(LAST_FRAME_NUMBER);
+    const lastFrame = this.firstFrame.lastFrame();
+
+    if (frameCount === LAST_FRAME_NUMBER) {
+      if (!tenthFrame.isComplete()) {
+        return false;
+      }
+      return !tenthFrame.isStrike() && !tenthFrame.isSpare();
+    }
+
+    if (frameCount === LAST_FRAME_NUMBER + 1) {
+      if (tenthFrame.isSpare()) {
+        return true;
+      }
+      return lastFrame.isComplete() && !lastFrame.isStrike();
+    }
+
+    return true;
   }
 }

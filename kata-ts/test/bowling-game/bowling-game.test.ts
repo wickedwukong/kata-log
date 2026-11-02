@@ -118,4 +118,69 @@ describe("BowlingGame", () => {
 
     expect(game.score()).toBe(10 + 9 + 0 + (9 + 0) + 5);
   });
+
+  describe("ten frame limit", () => {
+    test("perfect game of twelve strikes scores 300", () => {
+      rollMany(12, 10);
+
+      expect(game.score()).toBe(300);
+    });
+
+    test("all spares with a bonus roll of 5 scores 150", () => {
+      rollMany(21, 5);
+
+      expect(game.score()).toBe(150);
+    });
+
+    test("strike in the 10th frame earns two bonus rolls that are not scored as frames", () => {
+      rollMany(18, 0);
+      game.roll(10).roll(10).roll(10);
+
+      expect(game.score()).toBe(10 + 10 + 10);
+    });
+
+    test("strike in the 10th frame adds a bonus of two open rolls", () => {
+      rollMany(18, 0);
+      game.roll(10).roll(3).roll(4);
+
+      expect(game.score()).toBe(10 + 3 + 4);
+    });
+
+    test("spare in the 10th frame earns one bonus roll that is not scored as a frame", () => {
+      rollMany(18, 0);
+      game.roll(5).roll(5).roll(7);
+
+      expect(game.score()).toBe(5 + 5 + 7);
+    });
+
+    test("open 10th frame earns no bonus roll", () => {
+      rollMany(18, 0);
+      game.roll(3).roll(4);
+
+      expect(game.score()).toBe(3 + 4);
+    });
+
+    test("scores a full game with strikes, spares and open frames", () => {
+      // X | 9,/ | 5,/ | 7,2 | X | X | X | 9,- | 8,/ | 9,/,X
+      const rolls = [10, 9, 1, 5, 5, 7, 2, 10, 10, 10, 9, 0, 8, 2, 9, 1, 10];
+      for (const pins of rolls) {
+        game.roll(pins);
+      }
+
+      expect(game.score()).toBe(187);
+    });
+
+    test("rejects a roll after an open 10th frame", () => {
+      rollMany(20, 0);
+
+      expect(() => game.roll(1)).toThrow();
+    });
+
+    test("rejects a roll after the 10th frame's bonus rolls", () => {
+      rollMany(18, 0);
+      game.roll(10).roll(10).roll(10);
+
+      expect(() => game.roll(1)).toThrow();
+    });
+  });
 });
