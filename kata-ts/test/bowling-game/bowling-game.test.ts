@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { BowlingGame } from "./bowling-game.ts";
+import { BowlingGame } from "../../src/bowling-game/bowling-game.ts";
 
 describe("BowlingGame", () => {
   let game: BowlingGame;

@@ -21,7 +21,8 @@ dev = [
 package = false
 
 [tool.pytest.ini_options]
-pythonpath = ["."]
+pythonpath = ["src"]
+testpaths = ["tests"]
 addopts = ["--strict-markers", "--import-mode=importlib"]
 norecursedirs = [".venv", "reports", ".*"]
 
@@ -34,6 +35,7 @@ show_missing = true
 
 [tool.ruff]
 line-length = 79
+src = ["src"]
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I", "PL"]
@@ -47,5 +49,6 @@ allow-magic-value-types = ["str", "bytes", "int"]
 "**/test_*.py" = ["PLR0913", "PLR2004"]
 
 [tool.basedpyright]
+extraPaths = ["src"]
 exclude = [".venv", "reports"]
 typeCheckingMode = "standard"

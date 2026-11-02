@@ -7,9 +7,11 @@ I solve each kata twice: once in TypeScript and once in Python.
 
 ```
 kata-ts/               Bun + Vitest + Biome
-  <kata-name>/         one folder per kata, code and tests side by side
+  src/<kata-name>/     the code, one folder per kata
+  test/<kata-name>/    the tests, same folder name
 kata-python/           uv + pytest + ruff + basedpyright
-  <kata_name>/         one folder per kata, code and tests side by side
+  src/<kata_name>/     the code, one folder per kata
+  tests/<kata_name>/   the tests, same folder name
 ```
 
 Python folders use `snake_case` so they can be imported.
@@ -47,7 +49,7 @@ Inside `kata-ts/` or `kata-python/`:
 
 ## Add a new kata
 
-- TypeScript: create `kata-ts/<kata-name>/<kata-name>.ts` and `<kata-name>.test.ts`.
-- Python: create `kata-python/<kata_name>/__init__.py`, `<kata_name>.py` and `test_<kata_name>.py`.
+- TypeScript: create `kata-ts/src/<kata-name>/<kata-name>.ts` and `kata-ts/test/<kata-name>/<kata-name>.test.ts`.
+- Python: create `kata-python/src/<kata_name>/__init__.py` and `<kata_name>.py`. Create `kata-python/tests/<kata_name>/test_<kata_name>.py`.
 
 See `bowling-game` / `bowling_game` for an example.

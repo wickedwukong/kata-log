@@ -67,7 +67,7 @@ run = "uv run ptw ."
 [tasks."test:coverage"]
 description = "Run unit tests with HTML coverage report"
 depends = ["deps:install"]
-run = "uv run pytest --cov=. --cov-report=term-missing --cov-report=html:./reports/coverage"
+run = "uv run pytest --cov=src --cov-report=term-missing --cov-report=html:./reports/coverage"
 
 # -- All ----------------------------------------------------------------------
 
