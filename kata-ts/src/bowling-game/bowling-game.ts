@@ -56,10 +56,11 @@ class Frame {
     return this.firstRoll;
   }
 }
-class Frames {
+
+export class BowlingGame {
   private firstFrame?: Frame;
 
-  add(pins: number): Frames {
+  roll(pins: number): BowlingGame {
     if (this.firstFrame) {
       this.firstFrame.add(pins);
     } else {
@@ -69,20 +70,7 @@ class Frames {
     return this;
   }
 
-  score() {
-    return this.firstFrame?.totalScore() ?? 0;
-  }
-}
-
-export class BowlingGame {
-  private readonly frames: Frames = new Frames();
-
-  roll(pins: number): BowlingGame {
-    this.frames.add(pins);
-    return this;
-  }
-
   score(): number {
-    return this.frames.score();
+    return this.firstFrame?.totalScore() ?? 0;
   }
 }
