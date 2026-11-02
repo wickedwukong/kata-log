@@ -1,4 +1,5 @@
 const LAST_FRAME_NUMBER = 10;
+const ALL_PINS = 10;
 
 function sum(points: number[]): number {
   return points.reduce((acc, cur) => acc + cur, 0);
@@ -41,12 +42,13 @@ class Frame {
   }
 
   private isStrike(): boolean {
-    return this.firstRoll === 10;
+    return this.firstRoll === ALL_PINS;
   }
 
   private isSpare(): boolean {
     return (
-      this.secondRoll !== undefined && this.firstRoll + this.secondRoll === 10
+      this.secondRoll !== undefined &&
+      this.firstRoll + this.secondRoll === ALL_PINS
     );
   }
 
