@@ -7,7 +7,7 @@ class Frame {
     this.firstRoll = firstRoll;
   }
 
-  points(): number {
+  private points(): number {
     if (this.firstRoll === 10) {
       return this.firstRoll + this.next2RollsAfterCurrentFrame();
     }
@@ -23,8 +23,8 @@ class Frame {
     return this.firstRoll + secondRollPoints;
   }
 
-  score(): number {
-    return this.points() + (this.next ? this.next.score() : 0);
+  totalScore(): number {
+    return this.points() + (this.next ? this.next.totalScore() : 0);
   }
 
   add(pins: number): Frame {
@@ -70,7 +70,7 @@ class Frames {
   }
 
   score() {
-    return this.firstFrame?.score() ?? 0;
+    return this.firstFrame?.totalScore() ?? 0;
   }
 }
 
