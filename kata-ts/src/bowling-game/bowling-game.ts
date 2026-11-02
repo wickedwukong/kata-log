@@ -8,19 +8,21 @@ class Frame {
   }
 
   private points(): number {
-    if (this.firstRoll === 10) {
-      return this.firstRoll + this.next2RollsAfterCurrentFrame();
-    }
+    const bonus = this.next?.rollsAfter(this.bonusCount()) ?? [];
+    return this.sum([...this.ownRolls(), ...bonus]);
+  }
 
+  private isStrike(): boolean {
+    return this.firstRoll === 10;
+  }
+
+  private isSpare(): boolean {
     const secondRollPoints = this.secondRoll ?? 0;
+    return this.firstRoll + secondRollPoints === 10;
+  }
 
-    if (this.firstRoll + secondRollPoints === 10) {
-      return this.next
-        ? this.firstRoll + secondRollPoints + this.next?.firstRoll
-        : this.firstRoll + secondRollPoints;
-    }
-
-    return this.firstRoll + secondRollPoints;
+  private sum(points: number[]): number {
+    return points.reduce((acc, cur) => acc + cur, 0);
   }
 
   totalScore(): number {
@@ -54,6 +56,30 @@ class Frame {
     }
 
     return this.firstRoll;
+  }
+
+  private ownRolls() {
+    return this.secondRoll === undefined
+      ? [this.firstRoll]
+      : [this.firstRoll, this.secondRoll];
+  }
+
+  private bonusCount() {
+    if (this.isStrike()) {
+      return 2;
+    } else if (this.isSpare()) {
+      return 1;
+    }
+
+    return 0;
+  }
+
+  private rollsAfter(count: number) {
+    const rolls: number[] = [
+      ...this.ownRolls(),
+      ...(this.next?.rollsAfter(count) ?? []),
+    ];
+    return rolls.slice(0, count);
   }
 }
 
