@@ -35,42 +35,37 @@ class Frame {
     return this;
   }
 
-  totalFrames(): number {
-    return 1 + (this.next?.totalFrames() ?? 0);
-  }
-
   private points(): number {
     const bonus = this.next?.rollsFromHere(this.bonusCount()) ?? [];
     return sum([...this.ownRolls(), ...bonus]);
   }
 
-  isStrike(): boolean {
+  private isStrike(): boolean {
     return this.firstRoll === 10;
   }
 
-  isSpare(): boolean {
+  private isSpare(): boolean {
     return (
       this.secondRoll !== undefined && this.firstRoll + this.secondRoll === 10
     );
   }
 
   isGameOver(): boolean {
-    const frameCount = this.totalFrames();
-    if (frameCount < LAST_FRAME_NUMBER) {
+    const frames = this.allFrames();
+    const tenthFrame = frames[LAST_FRAME_NUMBER - 1];
+    if (!tenthFrame) {
       return false;
     }
+    const lastFrame = frames.at(-1) ?? tenthFrame;
 
-    const tenthFrame = this.frameAt(LAST_FRAME_NUMBER);
-    const lastFrame = this.lastFrame();
-
-    if (frameCount === LAST_FRAME_NUMBER) {
+    if (frames.length === LAST_FRAME_NUMBER) {
       if (!tenthFrame.isComplete()) {
         return false;
       }
       return !tenthFrame.isStrike() && !tenthFrame.isSpare();
     }
 
-    if (frameCount === LAST_FRAME_NUMBER + 1) {
+    if (frames.length === LAST_FRAME_NUMBER + 1) {
       if (tenthFrame.isSpare()) {
         return true;
       }
@@ -97,6 +92,8 @@ class Frame {
   }
 
   private rollsFromHere(count: number): number[] {
+    if (count <= 0) return [];
+
     const rolls = this.ownRolls().slice(0, count);
     const missing = count - rolls.length;
 
@@ -109,22 +106,12 @@ class Frame {
     return this.isStrike() || this.secondRoll !== undefined;
   }
 
-  private lastFrame() {
-    let current: Frame = this;
-    let next = this.next;
-    while (next !== undefined) {
-      current = next;
-      next = current.next;
+  private allFrames(): Frame[] {
+    const frames: Frame[] = [];
+    for (let frame: Frame | undefined = this; frame; frame = frame.next) {
+      frames.push(frame);
     }
-    return current;
-  }
-
-  private frameAt(count: number): Frame {
-    let current: Frame = this;
-    for (let i = 1; i < count && current.next !== undefined; i++) {
-      current = current.next;
-    }
-    return current;
+    return frames;
   }
 }
 
