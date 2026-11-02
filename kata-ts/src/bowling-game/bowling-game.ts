@@ -1,7 +1,7 @@
 class Frame {
   private readonly firstRoll: number;
   private secondRoll?: number;
-  public next?: Frame;
+  private next?: Frame;
 
   constructor(firstRoll: number) {
     this.firstRoll = firstRoll;
@@ -23,24 +23,20 @@ class Frame {
     return this.firstRoll + secondRollPoints;
   }
 
+  score(): number {
+    return this.points() + (this.next ? this.next.score() : 0);
+  }
+
   add(pins: number): Frame {
-    if (
-      this.firstRoll === 10 ||
-      (this.firstRoll !== 10 && this.secondRoll !== undefined)
-    ) {
+    if (this.next) {
+      this.next.add(pins);
+    } else if (this.firstRoll === 10 || this.secondRoll !== undefined) {
       this.next = new Frame(pins);
     } else {
       this.secondRoll = pins;
     }
-    return this;
-  }
 
-  lastFrame() {
-    let last: Frame = this;
-    while (last.next) {
-      last = last.next;
-    }
-    return last;
+    return this;
   }
 
   private next2RollsAfterCurrentFrame() {
@@ -65,7 +61,7 @@ class Frames {
 
   add(pins: number): Frames {
     if (this.firstFrame) {
-      this.firstFrame.lastFrame().add(pins);
+      this.firstFrame.add(pins);
     } else {
       this.firstFrame = new Frame(pins);
     }
@@ -74,13 +70,7 @@ class Frames {
   }
 
   score() {
-    let total = 0;
-    let currentFrame = this.firstFrame;
-    while (currentFrame) {
-      total += currentFrame.points();
-      currentFrame = currentFrame.next;
-    }
-    return total;
+    return this.firstFrame?.score() ?? 0;
   }
 }
 
