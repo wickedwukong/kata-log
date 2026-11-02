@@ -25,4 +25,17 @@ describe("BowlingGame", () => {
 
     expect(game.score()).toBe(20);
   });
+
+  test("score a single roll", () => {
+    expect(new BowlingGame().roll(0).score()).toBe(0);
+    expect(new BowlingGame().roll(5).score()).toBe(5);
+    expect(new BowlingGame().roll(10).score()).toBe(10);
+  });
+
+  test("spare has the next roll as a bonus added", () => {
+    const bowlingGame = new BowlingGame();
+    expect(bowlingGame.roll(5).score()).toBe(5);
+    expect(bowlingGame.roll(5).score()).toBe(10);
+    expect(bowlingGame.roll(5).score()).toBe(20);
+  });
 });
