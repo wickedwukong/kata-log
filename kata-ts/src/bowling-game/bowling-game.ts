@@ -9,7 +9,7 @@ class Frame {
 
   points(): number {
     if (this.firstRoll === 10) {
-      return this.next ? this.firstRoll + this.next.points() : this.firstRoll;
+      return this.firstRoll + this.next2RollsAfterCurrentFrame();
     }
 
     const secondRollPoints = this.secondRoll ?? 0;
@@ -24,7 +24,10 @@ class Frame {
   }
 
   add(pins: number): Frame {
-    if (this.firstRoll === 10 || (this.firstRoll !== 10 && this.secondRoll)) {
+    if (
+      this.firstRoll === 10 ||
+      (this.firstRoll !== 10 && this.secondRoll !== undefined)
+    ) {
       this.next = new Frame(pins);
     } else {
       this.secondRoll = pins;
@@ -38,6 +41,23 @@ class Frame {
       last = last.next;
     }
     return last;
+  }
+
+  private next2RollsAfterCurrentFrame() {
+    if (this.next) {
+      return this.next.twoRolls();
+    }
+    return 0;
+  }
+
+  private twoRolls() {
+    if (this.secondRoll !== undefined) {
+      return this.firstRoll + this.secondRoll;
+    } else if (this.next) {
+      return this.firstRoll + this.next.firstRoll;
+    }
+
+    return this.firstRoll;
   }
 }
 class Frames {
