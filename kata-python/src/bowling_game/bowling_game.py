@@ -33,12 +33,10 @@ class Frame:
             if frame.next_frame is None:
                 return frame._points()
             else:
-                return frame._points() + frame.next_frame.total_points(num_of_frames - 1)
+                return frame._points() + frame.next_frame.total_points(
+                    num_of_frames - 1
+                )
         return 0
-        # if self.next_frame is None:
-        #     return self._points()
-        #
-        # return self._points() + self.next_frame.total_points()
 
     def _points(self):
         if self._second_roll is None:
@@ -79,7 +77,7 @@ class Frame:
             return [self._first_roll, self._second_roll]
 
     def _all_frames(self):
-        frames = [self]
+        frames: list[Frame] = [self]
         while len(frames) < TEN_FRAMES and frames[-1].next_frame is not None:
             frames.append(frames[-1].next_frame)
 
@@ -91,6 +89,9 @@ class BowlingGame:
         self._first_frame: Frame | None = None
 
     def roll(self, pins: int) -> "BowlingGame":
+        if self._first_frame is not None and self._is_complete():
+            raise Exception("The game is already complete")
+
         if self._first_frame is None:
             self._first_frame = Frame(pins)
         else:
@@ -103,3 +104,40 @@ class BowlingGame:
             return 0
 
         return self._first_frame.total_points()
+
+    def _is_complete(self):
+        if self._first_frame is None:
+            return False
+
+        first_ten_frames = self._first_frame._all_frames()
+
+        if len(first_ten_frames) < TEN_FRAMES:
+            return False
+
+        tenth_frame = first_ten_frames[-1]
+
+        if tenth_frame._second_roll is None and tenth_frame.next_frame is None:
+            return False
+
+        next_frame = tenth_frame.next_frame
+
+        if tenth_frame._is_spare():
+            return (
+                next_frame is not None and self._count_rolls(next_frame) >= 1
+            )
+
+        if tenth_frame._is_strike():
+            return (
+                next_frame is not None and self._count_rolls(next_frame) >= 2
+            )
+
+        return True
+
+    @staticmethod
+    def _count_rolls(frame: "Frame | None") -> int:
+        count = 0
+        while frame is not None:
+            count += len(frame.rolls())
+            frame = frame.next_frame
+
+        return count
