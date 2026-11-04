@@ -6,7 +6,7 @@ class Frame:
     def __init__(self, pins: int):
         self._first_roll = pins
         self._second_roll = None
-        self.next_frame = None
+        self._next_frame = None
 
     def add(self, pins: int) -> "Frame":
         last_frame = self._all_frames()[-1]
@@ -14,7 +14,7 @@ class Frame:
         if last_frame._is_complete():
             last_frame.next_frame = Frame(pins)
         else:
-            last_frame._second_roll = pins
+            last_frame.second_roll = pins
 
         return self
 
@@ -28,6 +28,22 @@ class Frame:
                     num_of_frames - 1
                 )
         return 0
+
+    @property
+    def next_frame(self) -> "Frame | None":
+        return self._next_frame
+
+    @next_frame.setter
+    def next_frame(self, next_frame: "Frame"):
+        self._next_frame = next_frame
+
+    @property
+    def second_roll(self) -> int | None:
+        return self._second_roll
+
+    @second_roll.setter
+    def second_roll(self, second_roll: int):
+        self._second_roll = second_roll
 
     def _points(self):
         if self._second_roll is None:
@@ -82,7 +98,7 @@ class Frame:
 
         tenth_frame = first_ten_frames[-1]
 
-        if tenth_frame._second_roll is None and tenth_frame.next_frame is None:
+        if tenth_frame.second_roll is None and tenth_frame.next_frame is None:
             return False
 
         next_frame = tenth_frame.next_frame
