@@ -9,23 +9,14 @@ class Frame:
         self.next_frame = None
 
     def add(self, pins: int) -> "Frame":
-        if self._is_strike() or self._is_spare():
-            if self.next_frame is None:
-                self.next_frame = Frame(pins)
-                return self
-            else:
-                self.next_frame.add(pins)
-                return self
+        last_frame = self._all_frames()[-1]
 
-        if self._second_roll is None:
-            self._second_roll = pins
-            return self
-        elif self.next_frame is None:
-            self.next_frame = Frame(pins)
-            return self
+        if last_frame._is_complete():
+            last_frame.next_frame = Frame(pins)
         else:
-            self.next_frame.add(pins)
-            return self
+            last_frame._second_roll = pins
+
+        return self
 
     def total_points(self, num_of_frames: int = TEN_FRAMES) -> int:
         the_frames = self._all_frames()[:num_of_frames]
@@ -116,6 +107,13 @@ class Frame:
             frame = frame.next_frame
 
         return count
+
+    def _is_complete(self):
+        return (
+            self._is_strike()
+            or self._is_spare()
+            or self._second_roll is not None
+        )
 
 
 class BowlingGame:
