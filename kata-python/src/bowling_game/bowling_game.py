@@ -78,38 +78,13 @@ class Frame:
 
     def _all_frames(self):
         frames: list[Frame] = [self]
-        while len(frames) < TEN_FRAMES and frames[-1].next_frame is not None:
+        while frames[-1].next_frame is not None:
             frames.append(frames[-1].next_frame)
 
         return frames
 
-
-class BowlingGame:
-    def __init__(self) -> None:
-        self._first_frame: Frame | None = None
-
-    def roll(self, pins: int) -> "BowlingGame":
-        if self._first_frame is not None and self._is_complete():
-            raise Exception("The game is already complete")
-
-        if self._first_frame is None:
-            self._first_frame = Frame(pins)
-        else:
-            self._first_frame.add(pins)
-
-        return self
-
-    def score(self) -> int:
-        if self._first_frame is None:
-            return 0
-
-        return self._first_frame.total_points()
-
-    def _is_complete(self):
-        if self._first_frame is None:
-            return False
-
-        first_ten_frames = self._first_frame._all_frames()
+    def is_game_over(self):
+        first_ten_frames = self._all_frames()[:TEN_FRAMES]
 
         if len(first_ten_frames) < TEN_FRAMES:
             return False
@@ -141,3 +116,25 @@ class BowlingGame:
             frame = frame.next_frame
 
         return count
+
+
+class BowlingGame:
+    def __init__(self) -> None:
+        self._frame: Frame | None = None
+
+    def roll(self, pins: int) -> "BowlingGame":
+        if self._frame is not None and self._frame.is_game_over():
+            raise Exception("The game is already complete")
+
+        if self._frame is None:
+            self._frame = Frame(pins)
+        else:
+            self._frame.add(pins)
+
+        return self
+
+    def score(self) -> int:
+        if self._frame is None:
+            return 0
+
+        return self._frame.total_points()

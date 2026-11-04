@@ -11,7 +11,7 @@
       <excludeFolder url="file://$MODULE_DIR$/reports" />
       <excludeFolder url="file://$MODULE_DIR$/htmlcov" />
     </content>
-    <orderEntry type="jdk" jdkName="uv (kata-python)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="~/development/kata-log/kata-python/.venv" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">
